@@ -1,5 +1,5 @@
-# Используем официальный образ Go для сборки
-FROM golang:1.21-alpine AS builder
+# Используем официальный образ Go для сборки (версия должна соответствовать вашему go.mod)
+FROM golang:1.23-alpine AS builder
 
 # Устанавливаем зависимости для сборки
 RUN apk add --no-cache git
