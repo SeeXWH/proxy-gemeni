@@ -7,6 +7,7 @@ import (
 	"google.golang.org/genai"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 )
 
@@ -27,11 +28,25 @@ var (
 func initGeminiClient() error {
 	apiKey := "AIzaSyD8CLjZ597PM4bwEgyRzNIdqmM6FzyEEbw"
 
+	// 1. Настройка SOCKS5-прокси
+	proxyURL, err := url.Parse("socks5://127.0.0.1:2080") // Или host.docker.internal
+	if err != nil {
+		return fmt.Errorf("failed to parse proxy URL: %v", err)
+	}
+
+	// 2. Создаем HTTP-клиент с прокси
+	httpClient := &http.Client{
+		Transport: &http.Transport{
+			Proxy: http.ProxyURL(proxyURL),
+		},
+	}
+
+	// 3. Передаем клиент в genai
 	ctx = context.Background()
-	var err error
 	client, err = genai.NewClient(ctx, &genai.ClientConfig{
-		APIKey:  apiKey,
-		Backend: genai.BackendGeminiAPI,
+		APIKey:     apiKey,
+		Backend:    genai.BackendGeminiAPI,
+		HTTPClient: httpClient, // Важно: подключаем наш клиент
 	})
 	return err
 }
